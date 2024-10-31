@@ -1,6 +1,5 @@
 package com.pluralsight;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -46,7 +45,7 @@ public class UserInterface {
                 "7) Search All\n" +
                 "8) Add Vehicle\n" +
                 "9) Remove Vehicle\n" +
-                "A) View Contracts\n" +
+                "A) Admin Menu\n" +
                 "B) Buy Car\n" +
                 "0) Exit");
 
@@ -80,7 +79,7 @@ public class UserInterface {
                 processRemoveVehicleRequest();
                 break;
             case "a":
-                processViewContracts();
+                AdminMenu();
                 break;
             case "b":
                 processAddContract();
@@ -142,10 +141,8 @@ public class UserInterface {
         dealership.removeVehicle(carToBuy);
     }
 
-    private void processViewContracts() {
-        for (Contract c : contracts) {
-            System.out.println(c);
-        }
+    private void AdminMenu() {
+        AdminUserInterface.display();
     }
 
     private void processGetByPriceRequest() {
