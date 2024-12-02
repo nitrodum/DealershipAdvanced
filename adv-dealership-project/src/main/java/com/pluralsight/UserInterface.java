@@ -1,27 +1,31 @@
 package com.pluralsight;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
 import java.util.List;
 import java.util.Scanner;
 
 public class UserInterface {
+    BasicDataSource dataSource;
+    DealershipDAO dealershipDAO;
+    ContractDAO contractDAO;
     private Dealership dealership;
     private List<Contract> contracts;
     private final Scanner scanner = new Scanner(System.in);
     private boolean running = true;
 
-    public UserInterface() {
+    public UserInterface(BasicDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     private void init() {
-        DealershipFileManager loader = new DealershipFileManager();
-        this.dealership = loader.getDealership();
-        ContractFileManager contractLoader = new ContractFileManager();
-        this.contracts = contractLoader.loadContracts();
+        dealershipDAO = new DealershipDAO(dataSource);
+        this.dealership = dealershipDAO.getDealership();
+        contractDAO = new ContractDAO(dataSource);
+        this.contracts = contractDAO.loadContracts();
     }
 
     public void close() {
-        DealershipFileManager saver = new DealershipFileManager();
-        saver.saveDealership(this.dealership);
         scanner.close();
     }
 
@@ -97,12 +101,11 @@ public class UserInterface {
     private void processAddContract() {
         processGetAllVehiclesRequest();
         System.out.println("Enter the vin of the car you would like to purchase:");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
+        String vin = scanner.nextLine();
 
         Vehicle carToBuy = null;
         for (Vehicle v : dealership.getAllVehicles()){
-            if (vin == v.getVin()) {
+            if (vin.equals(v.getVin())) {
                 carToBuy = v;
             }
         }
@@ -118,7 +121,6 @@ public class UserInterface {
 
         System.out.println("Would you like to buy the car or lease the car? (buy/lease)");
         String choice = scanner.nextLine();
-        ContractFileManager saver = new ContractFileManager();
         if (choice.equalsIgnoreCase("buy")) {
             System.out.println("Would you like to finance this car? (yes/no)");
             choice = scanner.nextLine();
@@ -130,19 +132,18 @@ public class UserInterface {
 
             SalesContract salesContract = new SalesContract(date, name, email, carToBuy, 5, 100, finance);
             contracts.add(salesContract);
-             saver.saveContract(salesContract);
+             contractDAO.addContract(salesContract);
         } else {
             LeaseContract leaseContract = new LeaseContract(date, name, email, carToBuy);
             contracts.add(leaseContract);
-            saver.saveContract(leaseContract);
+            contractDAO.addContract(leaseContract);
         }
-        DealershipFileManager dealershipSaver = new DealershipFileManager();
-        dealershipSaver.saveDealership(dealership);
+        dealershipDAO.sellCar(carToBuy);
         dealership.removeVehicle(carToBuy);
     }
 
     private void AdminMenu() {
-        AdminUserInterface.display();
+        AdminUserInterface.display(contractDAO);
     }
 
     private void processGetByPriceRequest() {
@@ -211,7 +212,7 @@ public class UserInterface {
 
     private void processAddVehicleRequest() {
         System.out.println("Enter the vin of the car:");
-        int vin = scanner.nextInt();
+        String vin = scanner.nextLine();
         System.out.println("Enter the year of the car:");
         int year = scanner.nextInt();
         scanner.nextLine();
@@ -230,28 +231,25 @@ public class UserInterface {
         scanner.nextLine();
 
         Vehicle vehicle = new Vehicle(vin, year, make, model, type, color, mileage, price);
-        dealership.addVehicle(vehicle);
 
-        DealershipFileManager saver = new DealershipFileManager();
-        saver.saveDealership(this.dealership);
+        dealership.addVehicle(vehicle);
+        dealershipDAO.addVehicle(vehicle);
+
     }
 
     private void processRemoveVehicleRequest() {
         System.out.println("Enter the VIN of the vehicle you want to remove");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
+        String vin = scanner.nextLine();
         Vehicle toRemove = null;
         for (Vehicle vehicle : dealership.getAllVehicles()) {
-            if (vehicle.getVin() == vin) {
+            if (vin.equals(vehicle.getVin())) {
                 toRemove = vehicle;
             }
         }
         if (toRemove != null) {
             dealership.removeVehicle(toRemove);
+            dealershipDAO.deleteVehicle(toRemove);
         }
-
-        DealershipFileManager saver = new DealershipFileManager();
-        saver.saveDealership(this.dealership);
     }
 
     private void displayVehicles(List<Vehicle> vehicles) {
