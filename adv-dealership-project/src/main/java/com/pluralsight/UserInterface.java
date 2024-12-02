@@ -1,28 +1,32 @@
 package com.pluralsight;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
 import java.util.List;
 import java.util.Scanner;
 
 public class UserInterface {
+    BasicDataSource dataSource;
     private Dealership dealership;
     private List<Contract> contracts;
     private final Scanner scanner = new Scanner(System.in);
     private boolean running = true;
 
-    public UserInterface() {
+    public UserInterface(BasicDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     private void init() {
-        DealershipFileManager loader = new DealershipFileManager();
+        DealershipDAO loader = new DealershipDAO(dataSource);
         this.dealership = loader.getDealership();
         ContractFileManager contractLoader = new ContractFileManager();
         this.contracts = contractLoader.loadContracts();
     }
 
     public void close() {
-        DealershipFileManager saver = new DealershipFileManager();
-        saver.saveDealership(this.dealership);
-        scanner.close();
+//        DealershipDAO saver = new DealershipDAO(dataSource);
+//        saver.saveDealership(this.dealership);
+//        scanner.close();
     }
 
     public void display() {
@@ -97,12 +101,11 @@ public class UserInterface {
     private void processAddContract() {
         processGetAllVehiclesRequest();
         System.out.println("Enter the vin of the car you would like to purchase:");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
+        String vin = scanner.nextLine();
 
         Vehicle carToBuy = null;
         for (Vehicle v : dealership.getAllVehicles()){
-            if (vin == v.getVin()) {
+            if (vin.equals(v.getVin())) {
                 carToBuy = v;
             }
         }
@@ -136,9 +139,9 @@ public class UserInterface {
             contracts.add(leaseContract);
             saver.saveContract(leaseContract);
         }
-        DealershipFileManager dealershipSaver = new DealershipFileManager();
-        dealershipSaver.saveDealership(dealership);
-        dealership.removeVehicle(carToBuy);
+//        DealershipDAO dealershipSaver = new DealershipDAO();
+//        dealershipSaver.saveDealership(dealership);
+//        dealership.removeVehicle(carToBuy);
     }
 
     private void AdminMenu() {
@@ -211,7 +214,7 @@ public class UserInterface {
 
     private void processAddVehicleRequest() {
         System.out.println("Enter the vin of the car:");
-        int vin = scanner.nextInt();
+        String vin = scanner.nextLine();
         System.out.println("Enter the year of the car:");
         int year = scanner.nextInt();
         scanner.nextLine();
@@ -232,17 +235,16 @@ public class UserInterface {
         Vehicle vehicle = new Vehicle(vin, year, make, model, type, color, mileage, price);
         dealership.addVehicle(vehicle);
 
-        DealershipFileManager saver = new DealershipFileManager();
-        saver.saveDealership(this.dealership);
+//        DealershipDAO saver = new DealershipDAO();
+//        saver.saveDealership(this.dealership);
     }
 
     private void processRemoveVehicleRequest() {
         System.out.println("Enter the VIN of the vehicle you want to remove");
-        int vin = scanner.nextInt();
-        scanner.nextLine();
+        String vin = scanner.nextLine();
         Vehicle toRemove = null;
         for (Vehicle vehicle : dealership.getAllVehicles()) {
-            if (vehicle.getVin() == vin) {
+            if (vin.equals(vehicle.getVin())) {
                 toRemove = vehicle;
             }
         }
@@ -250,8 +252,8 @@ public class UserInterface {
             dealership.removeVehicle(toRemove);
         }
 
-        DealershipFileManager saver = new DealershipFileManager();
-        saver.saveDealership(this.dealership);
+//        DealershipDAO saver = new DealershipDAO();
+//        saver.saveDealership(this.dealership);
     }
 
     private void displayVehicles(List<Vehicle> vehicles) {

@@ -8,7 +8,7 @@ class LeaseContractTest {
 
     @Test
     void getTotalPrice() {
-        Vehicle test = new Vehicle(37846, 2021, "Chevorlet", "Silverado", "Truck", "Black", 2750, 31995);
+        Vehicle test = new Vehicle("37846", 2021, "Chevorlet", "Silverado", "Truck", "Black", 2750, 31995);
         LeaseContract testContract = new LeaseContract("Today", "Test", "Test.com", test);
 
         double total = testContract.getTotalPrice();
@@ -18,7 +18,7 @@ class LeaseContractTest {
 
     @Test
     void getMonthlyPrice() {
-        Vehicle test = new Vehicle(37846, 2021, "Chevorlet", "Silverado", "Truck", "Black", 2750, 31995);
+        Vehicle test = new Vehicle("37846", 2021, "Chevorlet", "Silverado", "Truck", "Black", 2750, 31995);
         LeaseContract testContract = new LeaseContract("Today", "Test", "Test.com", test);
 
         double monthly = testContract.getMonthlyPrice();

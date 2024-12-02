@@ -10,13 +10,13 @@ class SalesContractTest {
 
     @BeforeEach
     void init() {
-        Vehicle test = new Vehicle(12345, 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 20_000);
+        Vehicle test = new Vehicle("12345", 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 20_000);
 
     }
 
     @org.junit.jupiter.api.Test
     void getTotalPrice_NotFinanced() {
-        Vehicle test = new Vehicle(12345, 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 995);
+        Vehicle test = new Vehicle("12345", 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 995);
         SalesContract testContract = new SalesContract("today", "Test", "Test.com", test, 5, 100, false);
 
         double totalPrice = testContract.getTotalPrice();
@@ -26,7 +26,7 @@ class SalesContractTest {
 
     @org.junit.jupiter.api.Test
     void getTotalPrice_Financed() {
-        Vehicle test = new Vehicle(12345, 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 20_000);
+        Vehicle test = new Vehicle("12345", 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 20_000);
         SalesContract testContract = new SalesContract("today", "Test", "Test.com", test, 5, 100, true);
 
         double totalPrice = testContract.getTotalPrice();
@@ -36,7 +36,7 @@ class SalesContractTest {
 
     @org.junit.jupiter.api.Test
     void getMonthlyPrice() {
-        Vehicle test = new Vehicle(12345, 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 20_000);
+        Vehicle test = new Vehicle("12345", 2024, "Toyota", "Corolla", "Sedan", "Silver", 10_000, 20_000);
         SalesContract testContract = new SalesContract("today", "Test", "Test.com", test, 5, 100, true);
 
         double monthlyPrice = testContract.getMonthlyPrice();

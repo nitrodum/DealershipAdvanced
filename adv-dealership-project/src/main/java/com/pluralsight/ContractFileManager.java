@@ -20,7 +20,7 @@ public class ContractFileManager {
             String input;
             while (( input = bufferedReader.readLine()) != null) {
                 String[] data = input.split("\\|");
-                Vehicle v = new Vehicle(Integer.parseInt(data[4]), Integer.parseInt(data[5]), data[6], data[7],
+                Vehicle v = new Vehicle(data[4], Integer.parseInt(data[5]), data[6], data[7],
                         data[8], data[9], Integer.parseInt(data[10]), Double.parseDouble(data[11]));
                 if (data[0].equalsIgnoreCase("SALE")) {
                     boolean financed = data[14].equalsIgnoreCase("YES");
