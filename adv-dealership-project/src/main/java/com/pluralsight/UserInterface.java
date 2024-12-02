@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 public class UserInterface {
     BasicDataSource dataSource;
+    DealershipDAO dealershipDAO;
     private Dealership dealership;
     private List<Contract> contracts;
     private final Scanner scanner = new Scanner(System.in);
@@ -17,16 +18,15 @@ public class UserInterface {
     }
 
     private void init() {
-        DealershipDAO loader = new DealershipDAO(dataSource);
-        this.dealership = loader.getDealership();
+        dealershipDAO = new DealershipDAO(dataSource);
+        this.dealership = dealershipDAO.getDealership();
         ContractFileManager contractLoader = new ContractFileManager();
         this.contracts = contractLoader.loadContracts();
     }
 
     public void close() {
-//        DealershipDAO saver = new DealershipDAO(dataSource);
-//        saver.saveDealership(this.dealership);
-//        scanner.close();
+        dealershipDAO.saveDealership(this.dealership);
+        scanner.close();
     }
 
     public void display() {
@@ -139,9 +139,8 @@ public class UserInterface {
             contracts.add(leaseContract);
             saver.saveContract(leaseContract);
         }
-//        DealershipDAO dealershipSaver = new DealershipDAO();
-//        dealershipSaver.saveDealership(dealership);
-//        dealership.removeVehicle(carToBuy);
+        dealershipDAO.sellCar(carToBuy);
+        dealership.removeVehicle(carToBuy);
     }
 
     private void AdminMenu() {
@@ -233,10 +232,10 @@ public class UserInterface {
         scanner.nextLine();
 
         Vehicle vehicle = new Vehicle(vin, year, make, model, type, color, mileage, price);
-        dealership.addVehicle(vehicle);
 
-//        DealershipDAO saver = new DealershipDAO();
-//        saver.saveDealership(this.dealership);
+        dealership.addVehicle(vehicle);
+        dealershipDAO.addVehicle(vehicle);
+
     }
 
     private void processRemoveVehicleRequest() {
@@ -250,10 +249,8 @@ public class UserInterface {
         }
         if (toRemove != null) {
             dealership.removeVehicle(toRemove);
+            dealershipDAO.removeVehicle(toRemove);
         }
-
-//        DealershipDAO saver = new DealershipDAO();
-//        saver.saveDealership(this.dealership);
     }
 
     private void displayVehicles(List<Vehicle> vehicles) {
