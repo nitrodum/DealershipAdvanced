@@ -2,8 +2,6 @@ package com.pluralsight;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -84,7 +82,7 @@ public class DealershipDAO {
             try (PreparedStatement statement = connection.prepareStatement("""
                     INSERT INTO vehicles
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""")
-        ) {
+            ) {
                 statement.setString(1, v.getVin());
                 statement.setInt(2, v.getYear());
                 statement.setString(3, v.getMake());
@@ -98,7 +96,8 @@ public class DealershipDAO {
                 int rows = statement.executeUpdate();
 
                 System.out.printf("Rows updated %d\n", rows);
-        } try (PreparedStatement statement = connection.prepareStatement("""
+            }
+            try (PreparedStatement statement = connection.prepareStatement("""
                     INSERT INTO inventory
                     VALUES (?, ?)""")
             ) {
@@ -115,25 +114,34 @@ public class DealershipDAO {
         }
     }
 
-    public void removeVehicle(Vehicle v) {
+    public void deleteVehicle(Vehicle v) {
+        try (Connection connection = dataSource.getConnection()) {
 
-    }
+            try (PreparedStatement statement = connection.prepareStatement("""
+                    DELETE FROM inventory
+                    WHERE VIN = ? AND DealershipID = ?""")
+            ) {
+                statement.setString(1, v.getVin());
+                statement.setInt(2, dealership.getId());
 
-    public void saveDealership(Dealership dealership) {
-        try {
-            FileWriter writer = new FileWriter("inventory.csv");
-            BufferedWriter bufferedWriter = new BufferedWriter(writer);
-            bufferedWriter.write(dealership.getName() + "|" + dealership.getAddress() + "|" + dealership.getPhoneNumber());
-            bufferedWriter.newLine();
-            for (Vehicle vehicle : dealership.getAllVehicles()) {
-                bufferedWriter.write(vehicle.getVin() + "|" + vehicle.getYear() + "|" + vehicle.getMake() + "|" +
-                        vehicle.getModel() + "|" + vehicle.getVehicleType() + "|" + vehicle.getColor() + "|" +
-                        vehicle.getOdometer() + "|" + vehicle.getPrice());
-                bufferedWriter.newLine();
+                int rows = statement.executeUpdate();
+
+                System.out.printf("Rows updated %d\n", rows);
             }
-            bufferedWriter.close();
-        } catch (Exception e) {
-            System.out.println("Error writing to file");
+
+            try (PreparedStatement statement = connection.prepareStatement("""
+                    DELETE FROM vehicles
+                    WHERE VIN = ?""")
+            ) {
+                statement.setString(1, v.getVin());
+
+                int rows = statement.executeUpdate();
+
+                System.out.printf("Rows updated %d\n", rows);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 }

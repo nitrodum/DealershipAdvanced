@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class UserInterface {
     BasicDataSource dataSource;
     DealershipDAO dealershipDAO;
+    ContractDAO contractDAO;
     private Dealership dealership;
     private List<Contract> contracts;
     private final Scanner scanner = new Scanner(System.in);
@@ -20,12 +21,11 @@ public class UserInterface {
     private void init() {
         dealershipDAO = new DealershipDAO(dataSource);
         this.dealership = dealershipDAO.getDealership();
-        ContractFileManager contractLoader = new ContractFileManager();
-        this.contracts = contractLoader.loadContracts();
+        contractDAO = new ContractDAO(dataSource);
+        this.contracts = contractDAO.loadContracts();
     }
 
     public void close() {
-        dealershipDAO.saveDealership(this.dealership);
         scanner.close();
     }
 
@@ -121,7 +121,6 @@ public class UserInterface {
 
         System.out.println("Would you like to buy the car or lease the car? (buy/lease)");
         String choice = scanner.nextLine();
-        ContractFileManager saver = new ContractFileManager();
         if (choice.equalsIgnoreCase("buy")) {
             System.out.println("Would you like to finance this car? (yes/no)");
             choice = scanner.nextLine();
@@ -133,18 +132,18 @@ public class UserInterface {
 
             SalesContract salesContract = new SalesContract(date, name, email, carToBuy, 5, 100, finance);
             contracts.add(salesContract);
-             saver.saveContract(salesContract);
+             contractDAO.addContract(salesContract);
         } else {
             LeaseContract leaseContract = new LeaseContract(date, name, email, carToBuy);
             contracts.add(leaseContract);
-            saver.saveContract(leaseContract);
+            contractDAO.addContract(leaseContract);
         }
         dealershipDAO.sellCar(carToBuy);
         dealership.removeVehicle(carToBuy);
     }
 
     private void AdminMenu() {
-        AdminUserInterface.display();
+        AdminUserInterface.display(contractDAO);
     }
 
     private void processGetByPriceRequest() {
@@ -249,7 +248,7 @@ public class UserInterface {
         }
         if (toRemove != null) {
             dealership.removeVehicle(toRemove);
-            dealershipDAO.removeVehicle(toRemove);
+            dealershipDAO.deleteVehicle(toRemove);
         }
     }
 

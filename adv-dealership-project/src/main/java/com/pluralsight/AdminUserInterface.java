@@ -1,5 +1,7 @@
 package com.pluralsight;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -11,9 +13,11 @@ import java.util.Scanner;
 
 public class AdminUserInterface {
     private static Scanner scanner = new Scanner(System.in);
+    private static ContractDAO contractDAO;
     private static List<Contract> contractList;
 
-    public static void display() {
+    public static void display(ContractDAO contract) {
+        contractDAO = contract;
         System.out.println("""
                 Welcome to the admin menu
                 Choose one of the options
@@ -29,8 +33,7 @@ public class AdminUserInterface {
     }
 
     public static void adminMenu() {
-        ContractFileManager loader = new ContractFileManager();
-        contractList = loader.loadContracts();
+        contractList = contractDAO.loadContracts();
         System.out.println("Choose an option:\n" +
                 "1) View all contracts");
 
